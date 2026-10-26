@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Reliable Service Workers</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "outline-variant": "#c5c5d3",
+                      "on-background": "#1a1b21",
+                      "tertiary-fixed-dim": "#c8c6c5",
+                      "on-surface-variant": "#444651",
+                      "on-tertiary-fixed": "#1c1b1b",
+                      "inverse-on-surface": "#f1f0f7",
+                      "on-primary-fixed-variant": "#264191",
+                      "on-surface": "#1a1b21",
+                      "on-tertiary-container": "#adabab",
+                      "primary-fixed": "#dce1ff",
+                      "inverse-surface": "#2f3036",
+                      "surface-tint": "#4059aa",
+                      "tertiary-container": "#404040",
+                      "surface-variant": "#e3e1e9",
+                      "secondary-fixed-dim": "#c7c6c5",
+                      "primary-container": "#1e3a8a",
+                      "surface-container-low": "#f4f3fa",
+                      "on-error-container": "#93000a",
+                      "outline": "#757682",
+                      "surface-dim": "#dad9e1",
+                      "tertiary": "#2a2a2a",
+                      "primary-fixed-dim": "#b6c4ff",
+                      "error-container": "#ffdad6",
+                      "on-secondary-container": "#626361",
+                      "on-primary-container": "#90a8ff",
+                      "surface-container-lowest": "#ffffff",
+                      "primary": "#00236f",
+                      "surface-bright": "#faf8ff",
+                      "on-tertiary": "#ffffff",
+                      "on-secondary-fixed": "#1a1c1b",
+                      "on-primary-fixed": "#00164e",
+                      "on-tertiary-fixed-variant": "#474746",
+                      "surface-container-high": "#e9e7ef",
+                      "background": "#faf8ff",
+                      "secondary-container": "#e0dfde",
+                      "tertiary-fixed": "#e5e2e1",
+                      "surface-container": "#eeedf4",
+                      "surface": "#faf8ff",
+                      "on-error": "#ffffff",
+                      "on-secondary-fixed-variant": "#464746",
+                      "surface-container-highest": "#e3e1e9",
+                      "secondary-fixed": "#e3e2e0",
+                      "error": "#ba1a1a",
+                      "on-primary": "#ffffff",
+                      "on-secondary": "#ffffff",
+                      "secondary": "#5e5e5d",
+                      "inverse-primary": "#b6c4ff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "container-margin": "24px",
+                      "gutter": "16px",
+                      "base": "4px",
+                      "card-padding": "20px",
+                      "section-gap": "64px"
+              },
+              "fontFamily": {
+                      "headline-lg": [
+                              "Inter"
+                      ],
+                      "label-sm": [
+                              "Geist"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Geist"
+                      ],
+                      "headline-lg-mobile": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.01em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        body { background-color: #faf8ff; }
+        .hero-pattern {
+            background-color: #faf8ff;
+            background-image: radial-gradient(#c5c5d3 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        .trust-ring-high { stroke: #10b981; }
+        .trust-ring-mid { stroke: #00236f; }
+    </style>
+</head>
+<body class="text-on-background font-body-md antialiased min-h-screen flex flex-col">
+<!-- TopNavBar from Shared Components JSON -->
+<nav class="bg-surface dark:bg-surface border-b border-outline-variant dark:border-outline shadow-sm dark:shadow-none fixed top-0 w-full z-50">
+<div class="flex justify-between items-center h-16 px-container-margin max-w-[1280px] mx-auto">
+<div class="flex items-center gap-8">
+<a class="font-headline-lg text-headline-lg font-bold text-primary dark:text-primary-fixed" href="#">Reliable Service Workers</a>
+<div class="hidden md:flex items-center gap-6">
+<a class="text-on-surface-variant dark:text-on-surface-variant font-label-md text-label-md hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200" href="#">Marketplace</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-label-md text-label-md hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200" href="#">How it Works</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-label-md text-label-md hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200" href="#">About</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" data-icon="search">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-lowest border border-outline-variant rounded-full text-label-md font-label-md text-on-surface focus:outline-none focus:border-primary w-64 transition-colors" placeholder="Search services..." type="text"/>
+</div>
+<button class="font-label-md text-label-md text-primary hover:text-primary-container px-4 py-2 transition-colors">Log In</button>
+<button class="font-label-md text-label-md bg-primary text-on-primary px-6 py-2 rounded-full hover:bg-primary-container transition-colors shadow-sm">Post a Job</button>
+</div>
+</div>
+</nav>
+<main class="flex-grow pt-16">
+<!-- Hero Section -->
+<section class="relative pt-24 pb-32 px-container-margin overflow-hidden hero-pattern">
+<div class="max-w-[1280px] mx-auto relative z-10 flex flex-col items-center text-center">
+<h1 class="font-display-lg text-display-lg md:text-[64px] md:leading-[72px] text-on-background max-w-4xl mb-6 tracking-tight">
+                    Find a reliable service worker near you.
+                </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mb-12">
+                    Verified professionals. Clear availability. Local trust. Connect with skilled tradespeople ready to help with your next project.
+                </p>
+<!-- Search Interface -->
+<div class="bg-surface-container-lowest p-2 rounded-full shadow-[0_8px_24px_rgba(26,26,26,0.08)] border border-outline-variant w-full max-w-3xl flex flex-col md:flex-row items-center gap-2 relative z-20">
+<div class="flex-1 flex items-center w-full px-4 py-2 md:border-r border-outline-variant">
+<span class="material-symbols-outlined text-primary mr-3" data-icon="handyman">handyman</span>
+<input class="w-full bg-transparent border-none focus:ring-0 text-body-md font-body-md placeholder:text-on-surface-variant/70 p-0" placeholder="What do you need help with?" type="text"/>
+</div>
+<div class="flex-1 flex items-center w-full px-4 py-2">
+<span class="material-symbols-outlined text-primary mr-3" data-icon="location_on">location_on</span>
+<input class="w-full bg-transparent border-none focus:ring-0 text-body-md font-body-md placeholder:text-on-surface-variant/70 p-0" placeholder="Zip code or neighborhood" type="text"/>
+</div>
+<button class="w-full md:w-auto bg-primary text-on-primary px-8 py-3 rounded-full font-label-md text-label-md hover:bg-primary-container transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+                        Search
+                    </button>
+</div>
+<div class="mt-8 flex flex-wrap justify-center gap-4 text-on-surface-variant font-label-sm text-label-sm">
+<span>Popular:</span>
+<a class="hover:text-primary transition-colors border-b border-transparent hover:border-primary" href="#">Electrician</a>
+<a class="hover:text-primary transition-colors border-b border-transparent hover:border-primary" href="#">Plumber</a>
+<a class="hover:text-primary transition-colors border-b border-transparent hover:border-primary" href="#">Carpenter</a>
+<a class="hover:text-primary transition-colors border-b border-transparent hover:border-primary" href="#">AC Repair</a>
+<a class="hover:text-primary transition-colors border-b border-transparent hover:border-primary" href="#">Cleaning</a>
+</div>
+</div>
+<!-- Abstract shapes for visual interest -->
+<div class="absolute top-1/2 left-10 w-64 h-64 bg-primary-container/5 rounded-full blur-3xl -translate-y-1/2 pointer-events-none"></div>
+<div class="absolute top-1/3 right-10 w-80 h-80 bg-secondary-container/20 rounded-full blur-3xl pointer-events-none"></div>
+</section>
+<!-- Trust Section - Bento Grid -->
+<section class="py-section-gap px-container-margin bg-surface">
+<div class="max-w-[1280px] mx-auto">
+<div class="text-center mb-16">
+<h2 class="font-headline-lg text-headline-lg text-on-background mb-4">Built for Trust</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl mx-auto">We've removed the guesswork from hiring local professionals. Every worker on our platform meets strict verification standards.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Bento Box 1 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-8 shadow-[0_4px_12px_rgba(26,26,26,0.05)] flex flex-col items-start hover:shadow-[0_8px_24px_rgba(26,26,26,0.08)] transition-shadow">
+<div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-primary text-[24px]" data-icon="verified_user">verified_user</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-background mb-3">Verified Workers</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Every professional undergoes a thorough background check, identity verification, and credential review before joining.</p>
+</div>
+<!-- Bento Box 2 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-8 shadow-[0_4px_12px_rgba(26,26,26,0.05)] flex flex-col items-start hover:shadow-[0_8px_24px_rgba(26,26,26,0.08)] transition-shadow">
+<div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-primary text-[24px]" data-icon="request_quote">request_quote</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-background mb-3">Transparent Pricing</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">No hidden fees or surprise charges. View hourly rates and upfront project estimates directly on worker profiles.</p>
+</div>
+<!-- Bento Box 3 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-8 shadow-[0_4px_12px_rgba(26,26,26,0.05)] flex flex-col items-start hover:shadow-[0_8px_24px_rgba(26,26,26,0.08)] transition-shadow">
+<div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-primary text-[24px]" data-icon="event_available">event_available</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-background mb-3">Real Availability</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Our live calendar system shows exactly when a worker is available, so you can book with confidence immediately.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Featured Workers -->
+<section class="py-section-gap px-container-margin bg-surface-container-low">
+<div class="max-w-[1280px] mx-auto">
+<div class="flex justify-between items-end mb-12">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-background mb-2">Highly-Rated Professionals</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Top local talent ready for your next project.</p>
+</div>
+<a class="font-label-md text-label-md text-primary hover:text-primary-container flex items-center gap-1 transition-colors" href="#">
+                        View All <span class="material-symbols-outlined text-[18px]" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Worker Card 1 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-[0_4px_12px_rgba(26,26,26,0.05)] hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(26,26,26,0.08)] transition-all duration-300">
+<div class="p-card-padding">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-4">
+<div class="relative">
+<img class="w-16 h-16 rounded-full object-cover border-2 border-surface" data-alt="A professional headshot of a middle-aged male electrician in a clean blue uniform, set against a bright, modern white workshop background. High-key lighting, corporate premium aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCuBsefAjVWA57FZaf1Bm0s9G-ceMiVEbAPNPttMb_cqzk9G0xjkchGpc4IAnmMtKhIuF2JA-NORsI9z2jT4ZfoeIMOB_jZbJb8pkM64qBPxcP3-tRVXUSNqv9D9wVGwtk2oY32JZTIbFWzsc6KmLavcThCsuWuTpQaf1XUPgkUlLz3Ntq_s9JtjsaSNC-n2SDhIoLxYKYO3XbXqbAYohHvdzBZe7QMkQkBHQLQNqawLYg-bRevt6FOvg"/>
+<div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-[#10b981] border-2 border-surface rounded-full" title="Online"></div>
+</div>
+<div>
+<div class="flex items-center gap-1 mb-1">
+<h4 class="font-headline-md text-headline-md text-on-background text-[18px]">Marcus Johnson</h4>
+<span class="material-symbols-outlined text-primary text-[16px]" data-icon="verified">verified</span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Master Electrician</p>
+</div>
+</div>
+<!-- Trust Score Ring -->
+<div class="relative w-12 h-12 flex items-center justify-center">
+<svg class="w-full h-full -rotate-90 absolute inset-0" viewbox="0 0 36 36">
+<path class="stroke-surface-variant" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-width="3"></path>
+<path class="trust-ring-high" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-dasharray="98, 100" stroke-width="3"></path>
+</svg>
+<span class="font-label-sm text-label-sm text-on-background relative z-10 font-bold">98</span>
+</div>
+</div>
+<div class="flex items-center gap-4 mb-4">
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[16px]" data-icon="star" data-weight="fill">star</span>
+<span class="font-label-md text-label-md">4.9</span>
+<span class="font-body-md text-body-md text-on-surface-variant text-[14px] ml-1">(124 jobs)</span>
+</div>
+<div class="h-4 w-px bg-outline-variant"></div>
+<div class="font-label-md text-label-md text-on-surface-variant">$85/hr</div>
+</div>
+<div class="flex flex-wrap gap-2 mb-6">
+<span class="px-2 py-1 bg-surface-container rounded font-label-sm text-label-sm text-on-surface-variant">Wiring</span>
+<span class="px-2 py-1 bg-surface-container rounded font-label-sm text-label-sm text-on-surface-variant">Panels</span>
+<span class="px-2 py-1 bg-surface-container rounded font-label-sm text-label-sm text-on-surface-variant">Lighting</span>
+</div>
+<button class="w-full py-2 border border-primary text-primary rounded-lg font-label-md text-label-md hover:bg-primary/5 transition-colors">View Profile</button>
+</div>
+</div>
+<!-- Worker Card 2 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-[0_4px_12px_rgba(26,26,26,0.05)] hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(26,26,26,0.08)] transition-all duration-300">
+<div class="p-card-padding">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-4">
+<div class="relative">
+<img class="w-16 h-16 rounded-full object-cover border-2 border-surface" data-alt="A professional headshot of a female plumber in a neat grey uniform, holding a wrench slightly out of focus. Clean, well-lit modern home background. Corporate premium aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCiOXbFcThrPRyo7mrW0G4SBUQmJR3E_UWe75Qd-r6ryUUWYM9YDO5q-GceBceMNFClVcWVtdmRCr23aHfcMjAACVOyw8azWX55YNHQqFxng_YUX5zqmOPxNS2Cl7geVJifYJAuZcAR5by_LNXx7o3kFMdYFQrtrNQPHjTuiJudgRmPopdpeWffKCQPUR6bHbrH8eDcOdD4cndJNKOTRme_Qk0ieOdbpyUTm3Kx-DIkooBdWQR9jNqN8Q"/>
+<div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-[#f59e0b]" title="Busy"></div>
+</div>
+<div>
+<div class="flex items-center gap-1 mb-1">
+<h4 class="font-headline-md text-headline-md text-on-background text-[18px]">Sarah Chen</h4>
+<span class="material-symbols-outlined text-primary text-[16px]" data-icon="verified">verified</span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Licensed Plumber</p>
+</div>
+</div>
+<div class="relative w-12 h-12 flex items-center justify-center">
+<svg class="w-full h-full -rotate-90 absolute inset-0" viewbox="0 0 36 36">
+<path class="stroke-surface-variant" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-width="3"></path>
+<path class="trust-ring-high" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-dasharray="95, 100" stroke-width="3"></path>
+</svg>
+<span class="font-label-sm text-label-sm text-on-background relative z-10 font-bold">95</span>
+</div>
+</div>
+<div class="flex items-center gap-4 mb-4">
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[16px]" data-icon="star" data-weight="fill">star</span>
+<span class="font-label-md text-label-md">4.8</span>
+<span class="font-body-md text-body-md text-on-surface-variant text-[14px] ml-1">(89 jobs)</span>
+</div>
+<div class="h-4 w-px bg-outline-variant"></div>
+<div class="font-label-md text-label-md text-on-surface-variant">$95/hr</div>
+</div>
+<div class="flex flex-wrap gap-2 mb-6">
+<span class="px-2 py-1 bg-surface-container rounded font-label-sm text-label-sm text-on-surface-variant">Pipes</span>
+<span class="px-2 py-1 bg-surface-container rounded font-label-sm text-label-sm text-on-surface-variant">Fixtures</span>
+<span class="px-2 py-1 bg-surface-container rounded font-label-sm text-label-sm text-on-surface-variant">Emergency</span>
+</div>
+<button class="w-full py-2 border border-primary text-primary rounded-lg font-label-md text-label-md hover:bg-primary/5 transition-colors">View Profile</button>
+</div>
+</div>
+<!-- Worker Card 3 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-[0_4px_12px_rgba(26,26,26,0.05)] hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(26,26,26,0.08)] transition-all duration-300">
+<div class="p-card-padding">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-4">
+<div class="relative">
+<img class="w-16 h-16 rounded-full object-cover border-2 border-surface" data-alt="A professional headshot of a young male carpenter in a casual collared shirt, holding a wooden measuring tool. Crisp, well-lit studio background. Modern, trustworthy corporate style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUKx5Ygq6spc3X0iNHdwlN1oTKtCEjv3-Gp7c7DviWATIhuZItdvvjPQNY08r9KiSwbbOSXdUdpnW1O3SD-KpF2mjHNnaXiqeaWVNv27PdieCH9gfR6rG47OXpfBWUlnie5U4M6qPhylmg3Pg31yeMcqK1O5I6e655wsWtTluGL8VU6pinONoS1sAXYsW-FQTyiHBYl61pNtd6V72113svNxNrAffEJ3GV7lfoECqoEfex2oXvY2X1HQ"/>
+<div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-[#10b981] border-2 border-surface rounded-full" title="Online"></div>
+</div>
+<div>
+<div class="flex items-center gap-1 mb-1">
+<h4 class="font-headline-md text-headline-md text-on-background text-[18px]">David Rivera</h4>
+<span class="material-symbols-outlined text-primary text-[16px]" data-icon="verified">verified</span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Finish Carpenter</p>
+</div>
+</div>
+<div class="relative w-12 h-12 flex items-center justify-center">
+<svg class="w-full h-full -rotate-90 absolute inset-0" viewbox="0 0 36 36">
+<path class="stroke-surface-variant" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-width="3"></path>
+<path class="trust-ring-mid" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-dasharray="88, 100" stroke-width="3"></path>
+</svg>
+<span class="font-label-sm text-label-sm text-on-background relative z-10 font-bold">88</span>
+</div>
+</div>
+<div class="flex items-center gap-4 mb-4">
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[16px]" data-icon="star" data-weight="fill">star</span>
+<span class="font-label-md text-label-md">4.7</span>
+<span class="font-body-md text-body-md text-on-surface-variant text-[14px] ml-1">(56 jobs)</span>
+</div>
+<div class="h-4 w-px bg-outline-variant"></div>
+<div class="font-label-md text-label-md text-on-surface-variant">$65/hr</div>
+</div>
+<div class="flex flex-wrap gap-2 mb-6">
+<span class="px-2 py-1 bg-surface-container rounded font-label-sm text-label-sm text-on-surface-variant">Cabinets</span>
+<span class="px-2 py-1 bg-surface-container rounded font-label-sm text-label-sm text-on-surface-variant">Trim</span>
+<span class="px-2 py-1 bg-surface-container rounded font-label-sm text-label-sm text-on-surface-variant">Doors</span>
+</div>
+<button class="w-full py-2 border border-primary text-primary rounded-lg font-label-md text-label-md hover:bg-primary/5 transition-colors">View Profile</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer from Shared Components JSON -->
+<footer class="bg-surface-container-lowest dark:bg-surface-dim border-t border-outline-variant dark:border-outline w-full bottom-0 mt-auto">
+<div class="max-w-[1280px] mx-auto px-container-margin py-section-gap flex flex-col md:flex-row justify-between items-center gap-8">
+<div class="flex flex-col items-center md:items-start gap-2">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">Reliable Service Workers</span>
+<span class="font-body-md text-body-md text-on-surface-variant">© 2024 CivicServe Marketplace. Built for Trust.</span>
+</div>
+<div class="flex flex-wrap justify-center gap-6">
+<a class="font-label-sm text-label-sm text-on-surface-variant dark:text-on-surface-variant hover:text-primary underline transition-all opacity-100 hover:opacity-70" href="#">Privacy Policy</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant dark:text-on-surface-variant hover:text-primary underline transition-all opacity-100 hover:opacity-70" href="#">Terms of Service</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant dark:text-on-surface-variant hover:text-primary underline transition-all opacity-100 hover:opacity-70" href="#">Worker Agreement</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant dark:text-on-surface-variant hover:text-primary underline transition-all opacity-100 hover:opacity-70" href="#">Contact Support</a>
+</div>
+</div>
+</footer>
+</body></html>
